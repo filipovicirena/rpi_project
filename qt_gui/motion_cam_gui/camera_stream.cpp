@@ -1,11 +1,11 @@
+#include <pigpio.h>
 #include "camera_stream.h"
 #include <opencv2/opencv.hpp>
-#include <pigpio.h>
 #include <iostream>
 #include <ctime>
 #include <sstream>
 
-static cv::VideoCapture cap;
+cv::VideoCapture cap;  // no longer static, so it can be shared with other files
 static std::time_t lastPhotoTime = 0;
 
 void initCamera() {
@@ -16,7 +16,7 @@ void initCamera() {
     }
 }
 
-static void takePhoto(const cv::Mat& frame) {
+void takePhoto(const cv::Mat& frame) {
     std::time_t now = std::time(nullptr);
     if (now - lastPhotoTime < 10) {
         std::cout << "Photo not taken: cooldown active (" << (10 - (now - lastPhotoTime)) << "s remaining)." << std::endl;
@@ -58,4 +58,3 @@ void startStreaming(int pirPin) {
     std::cout << "Stopping camera stream." << std::endl;
     cv::destroyAllWindows();
 }
-

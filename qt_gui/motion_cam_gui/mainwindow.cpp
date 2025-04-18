@@ -1,49 +1,60 @@
+#include <pigpio.h>
 #include "mainwindow.h"
+#include <iostream>
 #include <QDebug>
 #include <QLabel>   // For QLabel
 #include <opencv2/opencv.hpp>
 #include <QTimer>
 #include <QImage>
 #include <QPixmap>
+#include "camera_stream.h"
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    // Create the video label with parent 'this' (MainWindow)
+    if (gpioInitialise() < 0) {
+        qDebug() << "Failed to initialize pigpio!";
+        return;
+    }
+    int pirPin = 11;
+    gpioSetMode(pirPin, PI_INPUT);
+
+    initCamera();         // initialize camera (opens cap)
+
+    // Create the video label
     videoLabel = new QLabel(this);
     videoLabel->setFixedSize(320, 240);
     videoLabel->move(50, 50);
 
-    // Open the camera (0 = default camera)
-    cap.open(0);
-    if (!cap.isOpened()) {
-        qDebug() << "Failed to open the camera!";
-        return;
-    }
+    // No need to open cap again here
 
-    // Create and configure the timer with parent 'this' (MainWindow)
+    // Timer setup
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateFrame);
-    timer->start(30);  // 30 ms interval = ~33 fps
+    timer->start(30);  // update every 30ms
 
-    // Resize the window to a reasonable size
+    // Resize the window
     resize(660, 500);
 }
 
 MainWindow::~MainWindow()
 {
 }
-
 void MainWindow::updateFrame() {
-    cv::Mat frame;
-    cap >> frame;
-    cv::resize(frame, frame, cv::Size(640, 480));
+    int pirPin = 4;  // same as above
+    if (gpioRead(pirPin) == 1) {
+        cv::Mat frame;
+        cap >> frame;
+        if (frame.empty()) return;
 
-    if (frame.empty()) return;
+        takePhoto(frame);  // your existing cooldown logic
 
-    // Convert BGR to RGB (Qt uses RGB)
-    cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-
-    QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-    videoLabel->setPixmap(QPixmap::fromImage(qimg).scaled(videoLabel->size(), Qt::KeepAspectRatio));
+        // Convert and show in QLabel
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
+        QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+        videoLabel->setPixmap(QPixmap::fromImage(qimg).scaled(videoLabel->size(), Qt::KeepAspectRatio));
+    } else {
+        videoLabel->clear();  // hide image when no motion
+    }
 }
