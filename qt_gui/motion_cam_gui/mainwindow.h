@@ -1,8 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include <QLabel>
-#include <opencv2/opencv.hpp>
+
 #include <QMainWindow>
+#include <QLabel>
+#include <QTimer>
 
 class MainWindow : public QMainWindow
 {
@@ -15,10 +16,9 @@ public:
 private slots:
     void updateFrame();
 
- private:
-    QLabel* videoLabel;
-    cv::VideoCapture cap;
+private:
+    QLabel *videoLabel;
     QTimer *timer;
-
 };
+
 #endif // MAINWINDOW_H

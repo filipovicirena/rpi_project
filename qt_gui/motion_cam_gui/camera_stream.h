@@ -3,10 +3,13 @@
 
 #include <opencv2/opencv.hpp>
 
+// Shared VideoCapture object
 extern cv::VideoCapture cap;
 
+// Initializes the camera
 void initCamera();
-void startStreaming(int pirPin);
-void takePhoto(const cv::Mat& frame);  // make takePhoto usable from other files
 
-#endif
+// Takes a photo with cooldown logic
+void takePhoto(const cv::Mat& frame);
+
+#endif // CAMERA_STREAM_H
