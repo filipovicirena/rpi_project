@@ -1,9 +1,13 @@
 #include <pigpio.h>
 #include "mainwindow.h"
+#include <iostream>
 #include <QDebug>
-#include <opencv2/opencv.hpp>
+#include <QDir>
+#include <QLabel>
+#include <QTimer>
 #include <QImage>
 #include <QPixmap>
+#include <opencv2/opencv.hpp>
 #include "camera_stream.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -17,38 +21,69 @@ MainWindow::MainWindow(QWidget *parent)
     int pirPin = 17;
     gpioSetMode(pirPin, PI_INPUT);
 
-    initCamera(); // Opens cap
+    initCamera();
 
+    // Live stream label
     videoLabel = new QLabel(this);
     videoLabel->setFixedSize(320, 240);
-    videoLabel->move(50, 50);
+    videoLabel->move(30, 50);
+    videoLabel->setStyleSheet("border: 1px solid black");
+
+    // Caption for latest photo
+    photoCaptionLabel = new QLabel("Last photo taken:", this);
+    photoCaptionLabel->setFixedWidth(150);  // Hardcoded width
+    photoCaptionLabel->setAlignment(Qt::AlignCenter);
+    photoCaptionLabel->move(390, 20);       // Adjust as needed to look centered
+    photoCaptionLabel->setStyleSheet("font-weight: bold; font-size: 14px");
+
+    // Latest photo label
+    latestPhotoLabel = new QLabel(this);
+    latestPhotoLabel->setFixedSize(320, 240);
+    latestPhotoLabel->move(380, 50);
+    latestPhotoLabel->setStyleSheet("border: 1px solid black");
+
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateFrame);
     timer->start(30);
 
-    resize(660, 500);
+    resize(750, 350);
 }
 
 MainWindow::~MainWindow()
 {
-    gpioTerminate(); // Cleanly shut down pigpio
 }
 
-void MainWindow::updateFrame() {
+void MainWindow::updateFrame()
+{
     int pirPin = 17;
-
     if (gpioRead(pirPin) == 1) {
         cv::Mat frame;
         cap >> frame;
         if (frame.empty()) return;
 
         takePhoto(frame);
+        updateLatestPhoto();  // refresh photo label
 
         cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
         QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
         videoLabel->setPixmap(QPixmap::fromImage(qimg).scaled(videoLabel->size(), Qt::KeepAspectRatio));
     } else {
         videoLabel->clear();
+    }
+}
+
+void MainWindow::updateLatestPhoto()
+{
+    QDir dir(".");
+    QStringList filters;
+    filters << "motion_photo_*.jpg";
+    dir.setNameFilters(filters);
+    dir.setSorting(QDir::Time | QDir::Reversed);  // newest last
+    QStringList photos = dir.entryList();
+
+    if (!photos.isEmpty()) {
+        QPixmap pix(photos.last());
+        latestPhotoLabel->setPixmap(pix.scaled(latestPhotoLabel->size(), Qt::KeepAspectRatio));
     }
 }

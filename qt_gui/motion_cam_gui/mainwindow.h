@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QLabel>
 #include <QTimer>
+#include <QLabel>
 
 class MainWindow : public QMainWindow
 {
@@ -17,8 +17,13 @@ private slots:
     void updateFrame();
 
 private:
-    QLabel *videoLabel;
     QTimer *timer;
+    QLabel *videoLabel;
+    QLabel *latestPhotoLabel;
+    QLabel *photoCaptionLabel;
+
+
+    void updateLatestPhoto();
 };
 
 #endif // MAINWINDOW_H
