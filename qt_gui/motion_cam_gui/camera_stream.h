@@ -12,4 +12,8 @@ void initCamera();
 // Takes a photo with cooldown logic
 void takePhoto(const cv::Mat& frame);
 
+// Getter ffor providing access to timestamp of latest photo
+std::time_t getLastPhotoTime();
+
+
 #endif // CAMERA_STREAM_H

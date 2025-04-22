@@ -6,7 +6,11 @@
 #include <sstream>
 
 cv::VideoCapture cap;
-static std::time_t lastPhotoTime = 0;
+
+std::time_t lastPhotoTime = 0;  //used to be static!
+std::time_t getLastPhotoTime() {
+    return lastPhotoTime;
+}
 
 void initCamera() {
     cap.open(0);

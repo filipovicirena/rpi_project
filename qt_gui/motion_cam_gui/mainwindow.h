@@ -21,6 +21,7 @@ private:
     QLabel *videoLabel;
     QLabel *latestPhotoLabel;
     QLabel *photoCaptionLabel;
+    QLabel *timestampLabel;
 
 
     void updateLatestPhoto();

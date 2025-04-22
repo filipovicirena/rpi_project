@@ -9,6 +9,7 @@
 #include <QPixmap>
 #include <opencv2/opencv.hpp>
 #include "camera_stream.h"
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,6 +43,11 @@ MainWindow::MainWindow(QWidget *parent)
     latestPhotoLabel->move(380, 50);
     latestPhotoLabel->setStyleSheet("border: 1px solid black");
 
+    // Tmestamp label for latest photo
+    timestampLabel = new QLabel(this);
+    timestampLabel->move(400, 330);  // Position it below latestPhotoLabel
+    timestampLabel->setText("Last photo time:");
+    timestampLabel->adjustSize();
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateFrame);
@@ -64,6 +70,11 @@ void MainWindow::updateFrame()
 
         takePhoto(frame);
         updateLatestPhoto();  // refresh photo label
+
+        std::time_t photoTime = getLastPhotoTime();  //get photo timestamp
+        QString timestamp = QDateTime::fromSecsSinceEpoch(photoTime).toString("yyyy-MM-dd hh:mm:ss");
+        timestampLabel->setText("Last photo time: " + timestamp);
+        timestampLabel->adjustSize();
 
         cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
         QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
