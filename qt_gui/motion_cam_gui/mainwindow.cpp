@@ -30,6 +30,13 @@ MainWindow::MainWindow(QWidget *parent)
     videoLabel->move(30, 50);
     videoLabel->setStyleSheet("border: 1px solid black");
 
+    // Stream capion
+    streamCaptionLabel = new QLabel("Stream:", this);
+    streamCaptionLabel->setFixedWidth(100);
+    streamCaptionLabel->setAlignment(Qt::AlignCenter);
+    streamCaptionLabel->move(40, 20);
+    streamCaptionLabel->setStyleSheet("font-weight: bold; font-size: 14px");
+
     // Caption for latest photo
     photoCaptionLabel = new QLabel("Last photo taken:", this);
     photoCaptionLabel->setFixedWidth(150);  // Hardcoded width
@@ -84,6 +91,22 @@ void MainWindow::updateFrame()
     }
 }
 
+void MainWindow::updateLatestPhoto() {
+    QDir dir("photos");  // Look in the 'photos' folder
+    QStringList filters;
+    filters << "motion_photo_*.jpg";
+    dir.setNameFilters(filters);
+    dir.setSorting(QDir::Time | QDir::Reversed);  // newest first
+    QStringList photos = dir.entryList();
+
+    if (!photos.isEmpty()) {
+        QPixmap pix("photos/" + photos.last());  // Use the correct path
+        latestPhotoLabel->setPixmap(pix.scaled(latestPhotoLabel->size(), Qt::KeepAspectRatio));
+    }
+}
+
+
+/*
 void MainWindow::updateLatestPhoto()
 {
     QDir dir(".");
@@ -98,3 +121,4 @@ void MainWindow::updateLatestPhoto()
         latestPhotoLabel->setPixmap(pix.scaled(latestPhotoLabel->size(), Qt::KeepAspectRatio));
     }
 }
+*/

@@ -19,6 +19,7 @@ private slots:
 private:
     QTimer *timer;
     QLabel *videoLabel;
+    QLabel *streamCaptionLabel;
     QLabel *latestPhotoLabel;
     QLabel *photoCaptionLabel;
     QLabel *timestampLabel;

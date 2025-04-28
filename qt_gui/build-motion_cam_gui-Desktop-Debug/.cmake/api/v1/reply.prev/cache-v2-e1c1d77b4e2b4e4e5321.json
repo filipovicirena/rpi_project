@@ -1074,6 +1074,30 @@
 			"value" : "FALSE"
 		},
 		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_OpenCV",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding OpenCV"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[/usr][v4.6.0()]"
+		},
+		{
+			"name" : "OpenCV_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for OpenCV."
+				}
+			],
+			"type" : "PATH",
+			"value" : "/usr/lib/aarch64-linux-gnu/cmake/opencv4"
+		},
+		{
 			"name" : "QT_DIR",
 			"properties" : 
 			[
@@ -1120,6 +1144,18 @@
 			],
 			"type" : "PATH",
 			"value" : "/usr/lib/aarch64-linux-gnu/cmake/Qt5Gui"
+		},
+		{
+			"name" : "Qt5Network_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for Qt5Network."
+				}
+			],
+			"type" : "PATH",
+			"value" : "/usr/lib/aarch64-linux-gnu/cmake/Qt5Network"
 		},
 		{
 			"name" : "Qt5Widgets_DIR",

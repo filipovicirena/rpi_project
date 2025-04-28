@@ -4,6 +4,7 @@
 #include <iostream>
 #include <ctime>
 #include <sstream>
+#include <QDir>
 
 cv::VideoCapture cap;
 
@@ -21,7 +22,38 @@ void initCamera() {
         std::cout << "Camera opened successfully." << std::endl;
     }
 }
+void takePhoto(const cv::Mat& frame) {
+    std::time_t now = std::time(nullptr);
+    if (now - lastPhotoTime < 10) {
+        std::cout << "Photo not taken: cooldown active ("
+                  << (10 - (now - lastPhotoTime)) << "s remaining)." << std::endl;
+        return;
+    }
 
+    lastPhotoTime = now;
+
+    // Use QDir to create the photos folder if it doesn't exist
+    QDir dir("photos");
+    if (!dir.exists()) {
+        if (!dir.mkpath(".")) {
+            std::cerr << "Failed to create photos directory!" << std::endl;
+            return;
+        }
+    }
+
+    // Construct filename
+    std::stringstream filename;
+    filename << "photos/motion_photo_" << now << ".jpg";
+
+    // Save photo
+    if (!cv::imwrite(filename.str(), frame)) {
+        std::cerr << "Failed to save photo!" << std::endl;
+    } else {
+        std::cout << "Photo saved as " << filename.str() << std::endl;
+    }
+}
+
+/*
 void takePhoto(const cv::Mat& frame) {
     std::time_t now = std::time(nullptr);
     if (now - lastPhotoTime < 10) {
@@ -41,3 +73,4 @@ void takePhoto(const cv::Mat& frame) {
         std::cout << "Photo saved as " << filename.str() << std::endl;
     }
 }
+*/

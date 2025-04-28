@@ -7,7 +7,7 @@
 				{
 					"build" : ".",
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-Debug-84c1d43e4bb3c199c053.json",
+					"jsonFile" : "directory-.-Debug-82a2879c291e246d81af.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.5"
@@ -44,7 +44,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "motion_cam_gui::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-motion_cam_gui-Debug-9faa689ac2ccc6dfa0c4.json",
+					"jsonFile" : "target-motion_cam_gui-Debug-300dd0d789bcf2b6c1aa.json",
 					"name" : "motion_cam_gui",
 					"projectIndex" : 0
 				},
