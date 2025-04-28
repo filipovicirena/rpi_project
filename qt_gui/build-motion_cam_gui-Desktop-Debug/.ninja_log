@@ -50,3 +50,15 @@
 10	176	1745827394644186395	/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/motion_cam_gui_autogen/mocs_compilation.cpp	1c270a466c1de3c3
 178	13699	1745827408168079330	CMakeFiles/motion_cam_gui.dir/camera_stream.cpp.o	1ca9ce72dbad9687
 13699	16510	1745827410968057196	motion_cam_gui	2a9281ef99a8cc42
+5	50	0	CMakeFiles/clean.additional	ef993b15a92b8f11
+50	61	0	clean	a31eedcededa8236
+6	577	1745828483079777555	motion_cam_gui_autogen/timestamp	1c270a466c1de3c3
+6	577	1745828483079777555	motion_cam_gui_autogen/mocs_compilation.cpp	1c270a466c1de3c3
+6	577	1745828483079777555	/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/motion_cam_gui_autogen/timestamp	1c270a466c1de3c3
+6	577	1745828483079777555	/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/motion_cam_gui_autogen/mocs_compilation.cpp	1c270a466c1de3c3
+584	723	1745828483251775940	CMakeFiles/motion_cam_gui.dir/motion_detector.cpp.o	2e6edf6efefd30b5
+577	8163	1745828490687706207	CMakeFiles/motion_cam_gui.dir/motion_cam_gui_autogen/mocs_compilation.cpp.o	6186d722c02a27f2
+578	9010	1745828491535698267	CMakeFiles/motion_cam_gui.dir/main.cpp.o	e16e46407956b00c
+578	15554	1745828498079637087	CMakeFiles/motion_cam_gui.dir/camera_stream.cpp.o	1ca9ce72dbad9687
+578	17341	1745828499867620398	CMakeFiles/motion_cam_gui.dir/mainwindow.cpp.o	c6ab0b3b5ece0e30
+17341	20014	1745828502531595555	motion_cam_gui	2a9281ef99a8cc42
