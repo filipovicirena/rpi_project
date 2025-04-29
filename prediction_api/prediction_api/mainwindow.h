@@ -1,21 +1,22 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QMainWindow>
+#include <QLabel>
+#include <QTimer>
+#include <QDateTime>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QMainWindow>
-#include <QTimer>
-#include <QLabel>
 
-class MainWindow : public QMainWindow
-{
+#include <opencv2/opencv.hpp>
+#include <pigpio.h>
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow {
     Q_OBJECT
-
-std::time_t lastPredictionTime = 0;
-const int predictionCooldown = 15; // seconds between predictions
-
-signals:
-    void photoTaken(const QString &photoPath);
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -24,21 +25,27 @@ public:
 private slots:
     void updateFrame();
     void onPredictionResult(QNetworkReply* reply);
-    void onPhotoTaken(const QString &photoPath);
 
 private:
-    QTimer *timer;
     QLabel *videoLabel;
     QLabel *streamCaptionLabel;
     QLabel *latestPhotoLabel;
     QLabel *photoCaptionLabel;
     QLabel *timestampLabel;
-    QNetworkAccessManager* networkManager;
+
+    QTimer *timer;
+    QNetworkAccessManager *networkManager;
+
+    cv::VideoCapture cap;
+    bool apiRequestInProgress = false;
+    std::time_t lastRequestTime = 0;
+
     QString predictionKey;
     QString predictionUrl;
 
-    void sendPhotoForPrediction(const QString& imagePath);
-    void updateLatestPhoto();
+    QString takePhoto(const cv::Mat& frame);
+    void sendPhotoForPrediction(const QString& path);
+    void updateLatestPhoto(const QString& photoPath);
 };
 
 #endif // MAINWINDOW_H
