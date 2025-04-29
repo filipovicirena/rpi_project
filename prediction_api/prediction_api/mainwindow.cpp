@@ -10,6 +10,14 @@
 #include <opencv2/opencv.hpp>
 #include "camera_stream.h"
 #include <QDateTime>
+#include <QNetworkRequest>
+#include <QFile>
+#include <QHttpMultiPart>
+#include <QUrl>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -61,6 +69,14 @@ MainWindow::MainWindow(QWidget *parent)
     timer->start(30);
 
     resize(750, 350);
+
+    networkManager = new QNetworkAccessManager(this);
+    connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::onPredictionResult);
+
+    // Replace these with your real values later
+    predictionKey = "GJFKKmZh8FETOTu99EHm2XVTebk0Y7JpydKFbPxQas9aVyF58eHaJQQJ99BDACi5YpzXJ3w3AAAIACOG8MzH";
+    predictionUrl = "https://model021-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1554ff92-88aa-4394-9787-1444573fe27c/classify/iterations/V1/image";
+
 }
 
 MainWindow::~MainWindow()
@@ -75,7 +91,18 @@ void MainWindow::updateFrame()
         cap >> frame;
         if (frame.empty()) return;
 
-        takePhoto(frame);
+        QString photoPath = takePhoto(frame);
+        if (!photoPath.isEmpty()) {
+            emit photoTaken(photoPath);  // this signal will go to MainWindow
+        }
+
+
+        /*QString path = takePhoto(frame);
+        if (!path.isEmpty()) {
+            sendPhotoForPrediction(path);
+        }*/
+
+        //takePhoto(frame);
         updateLatestPhoto();  // refresh photo label
 
         std::time_t photoTime = getLastPhotoTime();  //get photo timestamp
@@ -89,6 +116,8 @@ void MainWindow::updateFrame()
     } else {
         videoLabel->clear();
     }
+    connect(this, &MainWindow::photoTaken, this, &MainWindow::onPhotoTaken);
+
 }
 
 void MainWindow::updateLatestPhoto() {
@@ -105,4 +134,50 @@ void MainWindow::updateLatestPhoto() {
     }
 }
 
+void MainWindow::sendPhotoForPrediction(const QString& imagePath)
+{
+    QFile* file = new QFile(imagePath);
+    if (!file->open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to open image file:" << imagePath;
+        delete file;
+        return;
+    }
+
+    QNetworkRequest request{ QUrl(predictionUrl) };
+
+    request.setRawHeader("Prediction-Key", predictionKey.toUtf8());
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/octet-stream");
+
+    networkManager->post(request, file->readAll());
+    file->close();
+    file->deleteLater();
+}
+
+void MainWindow::onPredictionResult(QNetworkReply* reply)
+{
+    if (reply->error() != QNetworkReply::NoError) {
+        qWarning() << "Prediction API error:" << reply->errorString();
+        reply->deleteLater();
+        return;
+    }
+
+    QByteArray response = reply->readAll();
+    qDebug() << "Prediction API Response:" << response;
+    // You can parse JSON response here if you want
+
+    reply->deleteLater();
+}
+
+void MainWindow::onPhotoTaken(const QString &photoPath)
+{
+    std::time_t now = std::time(nullptr);
+    if (now - lastPredictionTime < predictionCooldown) {
+       /* qDebug() << "Prediction skipped: cooldown active ("
+                 << (predictionCooldown - (now - lastPredictionTime)) << "s remaining).";
+        */return;
+    }
+
+    lastPredictionTime = now;
+    sendPhotoForPrediction(photoPath);
+}
 

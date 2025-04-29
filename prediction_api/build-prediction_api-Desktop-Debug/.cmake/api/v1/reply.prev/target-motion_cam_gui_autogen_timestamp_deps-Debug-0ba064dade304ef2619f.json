@@ -14,9 +14,9 @@
 			}
 		]
 	},
-	"id" : "prediction_api_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+	"id" : "motion_cam_gui_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
 	"isGeneratorProvided" : true,
-	"name" : "prediction_api_autogen_timestamp_deps",
+	"name" : "motion_cam_gui_autogen_timestamp_deps",
 	"paths" : 
 	{
 		"build" : ".",
@@ -44,13 +44,13 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "/home/irena/Desktop/rpi_project/prediction_api/build-prediction_api-Desktop-Debug/CMakeFiles/prediction_api_autogen_timestamp_deps",
+			"path" : "/home/irena/Desktop/rpi_project/prediction_api/build-prediction_api-Desktop-Debug/CMakeFiles/motion_cam_gui_autogen_timestamp_deps",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "/home/irena/Desktop/rpi_project/prediction_api/build-prediction_api-Desktop-Debug/CMakeFiles/prediction_api_autogen_timestamp_deps.rule",
+			"path" : "/home/irena/Desktop/rpi_project/prediction_api/build-prediction_api-Desktop-Debug/CMakeFiles/motion_cam_gui_autogen_timestamp_deps.rule",
 			"sourceGroupIndex" : 1
 		}
 	],

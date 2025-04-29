@@ -731,7 +731,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "prediction_api"
+			"value" : "motion_cam_gui"
 		},
 		{
 			"name" : "CMAKE_PROJECT_VERSION",
@@ -1074,6 +1074,30 @@
 			"value" : "FALSE"
 		},
 		{
+			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_OpenCV",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Details about finding OpenCV"
+				}
+			],
+			"type" : "INTERNAL",
+			"value" : "[/usr][v4.6.0()]"
+		},
+		{
+			"name" : "OpenCV_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for OpenCV."
+				}
+			],
+			"type" : "PATH",
+			"value" : "/usr/lib/aarch64-linux-gnu/cmake/opencv4"
+		},
+		{
 			"name" : "QT_DIR",
 			"properties" : 
 			[
@@ -1122,6 +1146,18 @@
 			"value" : "/usr/lib/aarch64-linux-gnu/cmake/Qt5Gui"
 		},
 		{
+			"name" : "Qt5Network_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "The directory containing a CMake configuration file for Qt5Network."
+				}
+			],
+			"type" : "PATH",
+			"value" : "/usr/lib/aarch64-linux-gnu/cmake/Qt5Network"
+		},
+		{
 			"name" : "Qt5Widgets_DIR",
 			"properties" : 
 			[
@@ -1156,6 +1192,42 @@
 			],
 			"type" : "INTERNAL",
 			"value" : "TRUE"
+		},
+		{
+			"name" : "motion_cam_gui_BINARY_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "/home/irena/Desktop/rpi_project/prediction_api/build-prediction_api-Desktop-Debug"
+		},
+		{
+			"name" : "motion_cam_gui_IS_TOP_LEVEL",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "ON"
+		},
+		{
+			"name" : "motion_cam_gui_SOURCE_DIR",
+			"properties" : 
+			[
+				{
+					"name" : "HELPSTRING",
+					"value" : "Value Computed by CMake"
+				}
+			],
+			"type" : "STATIC",
+			"value" : "/home/irena/Desktop/rpi_project/prediction_api/prediction_api"
 		},
 		{
 			"name" : "prediction_api_BINARY_DIR",

@@ -2,6 +2,7 @@
 #define CAMERA_STREAM_H
 
 #include <opencv2/opencv.hpp>
+#include <QString>
 
 // Shared VideoCapture object
 extern cv::VideoCapture cap;
@@ -10,7 +11,8 @@ extern cv::VideoCapture cap;
 void initCamera();
 
 // Takes a photo with cooldown logic
-void takePhoto(const cv::Mat& frame);
+QString takePhoto(const cv::Mat& frame);
+
 
 // Getter ffor providing access to timestamp of latest photo
 std::time_t getLastPhotoTime();

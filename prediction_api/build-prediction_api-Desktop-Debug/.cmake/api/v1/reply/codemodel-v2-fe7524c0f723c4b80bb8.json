@@ -7,7 +7,7 @@
 				{
 					"build" : ".",
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-Debug-03079c7ff740129d675a.json",
+					"jsonFile" : "directory-.-Debug-6f665c54b8b59ec50a12.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.5"
@@ -30,7 +30,7 @@
 					[
 						0
 					],
-					"name" : "prediction_api",
+					"name" : "motion_cam_gui",
 					"targetIndexes" : 
 					[
 						0,
@@ -43,23 +43,23 @@
 			[
 				{
 					"directoryIndex" : 0,
-					"id" : "prediction_api::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-prediction_api-Debug-7cf2d8feb8a265c60aca.json",
-					"name" : "prediction_api",
+					"id" : "motion_cam_gui::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motion_cam_gui-Debug-1a0e369a7e843a072761.json",
+					"name" : "motion_cam_gui",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
-					"id" : "prediction_api_autogen::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-prediction_api_autogen-Debug-469028d7baeebc0a7f73.json",
-					"name" : "prediction_api_autogen",
+					"id" : "motion_cam_gui_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motion_cam_gui_autogen-Debug-22a24ebc6ca81ab501b6.json",
+					"name" : "motion_cam_gui_autogen",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
-					"id" : "prediction_api_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-prediction_api_autogen_timestamp_deps-Debug-95c065178f1f00f08c35.json",
-					"name" : "prediction_api_autogen_timestamp_deps",
+					"id" : "motion_cam_gui_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-motion_cam_gui_autogen_timestamp_deps-Debug-0ba064dade304ef2619f.json",
+					"name" : "motion_cam_gui_autogen_timestamp_deps",
 					"projectIndex" : 0
 				}
 			]
