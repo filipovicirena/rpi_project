@@ -7,6 +7,7 @@
 #include <QHttpMultiPart>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,6 +50,14 @@ MainWindow::MainWindow(QWidget *parent)
     timestampLabel->move(400, 330);
     timestampLabel->setText("Last photo time:");
     timestampLabel->adjustSize();
+
+    // Prediction result label
+    predictionResultLabel = new QLabel(this);
+    predictionResultLabel->move(400,300);  // Adjust position as needed
+    predictionResultLabel->setText("Prediction: ");
+    predictionResultLabel->setStyleSheet("font-style: italic;");
+    predictionResultLabel->adjustSize();
+
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateFrame);
@@ -129,14 +138,52 @@ void MainWindow::onPredictionResult(QNetworkReply* reply) {
 
     if (reply->error() != QNetworkReply::NoError) {
         qDebug() << "Prediction API error:" << reply->errorString();
+        predictionResultLabel->setText("Prediction: Error");
         reply->deleteLater();
         return;
     }
 
     QByteArray response = reply->readAll();
     qDebug() << "Prediction response:" << response;
+
+    QJsonDocument doc = QJsonDocument::fromJson(response);
+    if (!doc.isObject()) {
+        predictionResultLabel->setText("Prediction: Invalid response");
+        reply->deleteLater();
+        return;
+    }
+
+    QJsonObject obj = doc.object();
+    if (!obj.contains("predictions") || !obj["predictions"].isArray()) {
+        predictionResultLabel->setText("Prediction: No predictions");
+        reply->deleteLater();
+        return;
+    }
+
+    QJsonArray predictions = obj["predictions"].toArray();
+    if (predictions.isEmpty()) {
+        predictionResultLabel->setText("Prediction: None");
+        reply->deleteLater();
+        return;
+    }
+
+    QJsonObject top = predictions.first().toObject();
+    QString tag = top["tagName"].toString();
+    double probability = top["probability"].toDouble() * 100.0;
+
+    QString resultText = QString("Prediction: %1 (%2%)")
+                             .arg(tag)
+                             .arg(QString::number(probability, 'f', 1));
+    predictionResultLabel->setText(resultText);
+
+
+    //QString result = QString("Prediction: %1 (%.1f%)").arg(tag).arg(probability);
+    //predictionResultLabel->setText(result);
+    predictionResultLabel->adjustSize();
+
     reply->deleteLater();
 }
+
 
 void MainWindow::updateLatestPhoto(const QString& path) {
     QPixmap pix(path);

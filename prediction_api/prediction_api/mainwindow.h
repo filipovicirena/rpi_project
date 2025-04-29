@@ -32,6 +32,7 @@ private:
     QLabel *latestPhotoLabel;
     QLabel *photoCaptionLabel;
     QLabel *timestampLabel;
+    QLabel *predictionResultLabel;
 
     QTimer *timer;
     QNetworkAccessManager *networkManager;
