@@ -1,9 +1,0 @@
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/motion_cam_gui.dir
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/edit_cache.dir
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/rebuild_cache.dir
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/list_install_components.dir
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/install.dir
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/install/local.dir
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/install/strip.dir
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/motion_cam_gui_autogen_timestamp_deps.dir
-/home/irena/Desktop/rpi_project/qt_gui/build-motion_cam_gui-Desktop-Debug/CMakeFiles/motion_cam_gui_autogen.dir
