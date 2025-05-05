@@ -8,6 +8,40 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <iostream>
+
+struct CustomVisionConfig {
+    QString endpoint;
+    QString apiKey;
+};
+CustomVisionConfig loadConfig(const QString& path) {
+    QFile configFile(path);
+    if (!configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        std::cerr << "Error: Could not open config file.\n";
+        return {};
+    }
+
+    QByteArray data = configFile.readAll();
+    configFile.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (!doc.isObject()) {
+        std::cerr << "Error: Invalid JSON format.\n";
+        return {};
+    }
+
+    QJsonObject obj = doc.object().value("customVision").toObject();
+    CustomVisionConfig config;
+    config.endpoint = obj.value("endpoint").toString();
+    config.apiKey = obj.value("apiKey").toString();
+
+    if (config.endpoint.isEmpty() || config.apiKey.isEmpty()) {
+        std::cerr << "Error: Missing endpoint or API key in config.\n";
+        return {};
+    }
+
+    return config;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -68,8 +102,16 @@ MainWindow::MainWindow(QWidget *parent)
     networkManager = new QNetworkAccessManager(this);
     connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::onPredictionResult);
 
-    predictionKey = "GJFKKmZh8FETOTu99EHm2XVTebk0Y7JpydKFbPxQas9aVyF58eHaJQQJ99BDACi5YpzXJ3w3AAAIACOG8MzH";
-    predictionUrl = "https://model021-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1554ff92-88aa-4394-9787-1444573fe27c/classify/iterations/V1/image";
+    CustomVisionConfig config = loadConfig("config.json");
+    if (config.endpoint.isEmpty() || config.apiKey.isEmpty()) {
+        std::cerr << "Config loading failed. API access will be disabled.\n";
+        return;
+    }
+
+    predictionKey = config.apiKey;
+    predictionUrl = config.endpoint;
+    /*predictionKey = "GJFKKmZh8FETOTu99EHm2XVTebk0Y7JpydKFbPxQas9aVyF58eHaJQQJ99BDACi5YpzXJ3w3AAAIACOG8MzH";
+    predictionUrl = "https://model021-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1554ff92-88aa-4394-9787-1444573fe27c/classify/iterations/Iteration2/image";*/
 }
 
 MainWindow::~MainWindow() {}

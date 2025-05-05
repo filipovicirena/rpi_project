@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+#Build folders
+prediction_api/build-prediction_api-Desktop-Debug
+qt_gui/build-motion_cam_gui-Desktop-Debug
