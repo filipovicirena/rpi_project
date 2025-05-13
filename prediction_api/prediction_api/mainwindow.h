@@ -42,7 +42,8 @@ private:
     QLabel *predictionResultLabel;
 
     QTimer *timer;
-    QNetworkAccessManager *networkManager;
+    QNetworkAccessManager *predictionNM;
+    QNetworkAccessManager *logicAppNM;
 
     cv::VideoCapture cap;
     bool apiRequestInProgress = false;

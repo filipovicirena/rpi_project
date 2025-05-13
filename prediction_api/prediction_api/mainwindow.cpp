@@ -10,12 +10,8 @@
 #include <QJsonArray>
 #include <iostream>
 
-/*struct ConfigData {
-    QString endpoint;
-    QString apiKey;
-    QString url;
-};
-*/
+
+
 ConfigData loadConfig(const QString& path) {
     QFile configFile(path);
     if (!configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -104,8 +100,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     resize(750, 350);
 
-    networkManager = new QNetworkAccessManager(this);
-    connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::onPredictionResult);
+    predictionNM = new QNetworkAccessManager(this);
+    logicAppNM = new QNetworkAccessManager(this);
+    connect(predictionNM, &QNetworkAccessManager::finished, this, &MainWindow::onPredictionResult);
 
     ConfigData config = loadConfig("config.json");
     if (config.endpoint.isEmpty() || config.apiKey.isEmpty()) {
@@ -116,8 +113,7 @@ MainWindow::MainWindow(QWidget *parent)
     predictionKey = config.apiKey;
     predictionUrl = config.endpoint;
     logicAppUrl   = config.url;
-    /*predictionKey = "GJFKKmZh8FETOTu99EHm2XVTebk0Y7JpydKFbPxQas9aVyF58eHaJQQJ99BDACi5YpzXJ3w3AAAIACOG8MzH";
-    predictionUrl = "https://model021-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1554ff92-88aa-4394-9787-1444573fe27c/classify/iterations/Iteration2/image";*/
+
 }
 
 MainWindow::~MainWindow() {}
@@ -177,7 +173,7 @@ void MainWindow::sendPhotoForPrediction(const QString& path) {
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/octet-stream");
 
     apiRequestInProgress = true;
-    networkManager->post(request, file->readAll());
+    predictionNM->post(request, file->readAll());
     file->deleteLater();
 }
 
@@ -245,7 +241,7 @@ void MainWindow::sendToLogicApp(const QString& tag, double probability) {
     QNetworkRequest request{ QUrl(logicAppUrl) };
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    networkManager->post(request, jsonData);
+    logicAppNM->post(request, jsonData);
 
     qDebug() << "Sent data to Logic App: " << jsonData;
 }
