@@ -10,38 +10,43 @@
 #include <QJsonArray>
 #include <iostream>
 
-struct CustomVisionConfig {
+/*struct ConfigData {
     QString endpoint;
     QString apiKey;
+    QString url;
 };
-CustomVisionConfig loadConfig(const QString& path) {
+*/
+ConfigData loadConfig(const QString& path) {
     QFile configFile(path);
     if (!configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         std::cerr << "Error: Could not open config file.\n";
         return {};
     }
 
-    QByteArray data = configFile.readAll();
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(configFile.readAll(), &parseError);
     configFile.close();
 
-    QJsonDocument doc = QJsonDocument::fromJson(data);
-    if (!doc.isObject()) {
+    if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
         std::cerr << "Error: Invalid JSON format.\n";
         return {};
     }
 
-    QJsonObject obj = doc.object().value("customVision").toObject();
-    CustomVisionConfig config;
-    config.endpoint = obj.value("endpoint").toString();
-    config.apiKey = obj.value("apiKey").toString();
+    QJsonObject obj = doc.object();
 
-    if (config.endpoint.isEmpty() || config.apiKey.isEmpty()) {
-        std::cerr << "Error: Missing endpoint or API key in config.\n";
+    ConfigData config;
+    config.endpoint = obj.value("customVisionEndpoint").toString();
+    config.apiKey   = obj.value("customVisionApiKey").toString();
+    config.url      = obj.value("logicAppUrl").toString();
+
+    if (config.endpoint.isEmpty() || config.apiKey.isEmpty() || config.url.isEmpty()) {
+        std::cerr << "Error: Missing one or more required fields in config.\n";
         return {};
     }
 
     return config;
 }
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -102,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent)
     networkManager = new QNetworkAccessManager(this);
     connect(networkManager, &QNetworkAccessManager::finished, this, &MainWindow::onPredictionResult);
 
-    CustomVisionConfig config = loadConfig("config.json");
+    ConfigData config = loadConfig("config.json");
     if (config.endpoint.isEmpty() || config.apiKey.isEmpty()) {
         std::cerr << "Config loading failed. API access will be disabled.\n";
         return;
@@ -110,6 +115,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     predictionKey = config.apiKey;
     predictionUrl = config.endpoint;
+    logicAppUrl   = config.url;
     /*predictionKey = "GJFKKmZh8FETOTu99EHm2XVTebk0Y7JpydKFbPxQas9aVyF58eHaJQQJ99BDACi5YpzXJ3w3AAAIACOG8MzH";
     predictionUrl = "https://model021-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/1554ff92-88aa-4394-9787-1444573fe27c/classify/iterations/Iteration2/image";*/
 }
@@ -218,12 +224,30 @@ void MainWindow::onPredictionResult(QNetworkReply* reply) {
                              .arg(QString::number(probability, 'f', 1));
     predictionResultLabel->setText(resultText);
 
+    if (tag.toLower() == "intruder") {
+        sendToLogicApp(tag, probability);
+    }
 
-    //QString result = QString("Prediction: %1 (%.1f%)").arg(tag).arg(probability);
-    //predictionResultLabel->setText(result);
     predictionResultLabel->adjustSize();
 
     reply->deleteLater();
+}
+
+void MainWindow::sendToLogicApp(const QString& tag, double probability) {
+    QJsonObject payload;
+    payload["tag"] = tag;
+    payload["probability"] = QString::number(probability, 'f', 2);
+    payload["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+    QJsonDocument doc(payload);
+    QByteArray jsonData = doc.toJson();
+
+    QNetworkRequest request{ QUrl(logicAppUrl) };
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    networkManager->post(request, jsonData);
+
+    qDebug() << "Sent data to Logic App: " << jsonData;
 }
 
 
