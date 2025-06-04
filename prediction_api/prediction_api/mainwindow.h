@@ -16,6 +16,7 @@ struct ConfigData {
     QString endpoint;
     QString apiKey;
     QString url;
+    QString blobUploadUrl;
 };
 
 QT_BEGIN_NAMESPACE
@@ -44,22 +45,24 @@ private:
     QTimer *timer;
     QNetworkAccessManager *predictionNM;
     QNetworkAccessManager *logicAppNM;
+    QNetworkAccessManager *blobNM;
 
     cv::VideoCapture cap;
     bool apiRequestInProgress = false;
     std::time_t lastRequestTime = 0;
 
-
     QString predictionKey;
     QString predictionUrl;
     QString logicAppUrl;
+    QString blobUploadUrl;
 
     ConfigData config;
 
     QString takePhoto(const cv::Mat& frame);
     void sendPhotoForPrediction(const QString& path);
-    void sendToLogicApp(const QString& tag, double probability);
+    void sendToLogicApp(const QString& tag, double probability,const QString& uploadUrl);
     void updateLatestPhoto(const QString& photoPath);
+    QString uploadPhotoToBlob(const QString& photoPath);
 };
 
 #endif // MAINWINDOW_H

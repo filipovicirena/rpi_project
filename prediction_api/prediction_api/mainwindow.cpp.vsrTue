@@ -31,10 +31,9 @@ ConfigData loadConfig(const QString& path) {
     QJsonObject obj = doc.object();
 
     ConfigData config;
-    config.endpoint      = obj.value("customVisionEndpoint").toString();
-    config.apiKey        = obj.value("customVisionApiKey").toString();
-    config.url           = obj.value("logicAppUrl").toString();
-    config.blobUploadUrl = obj.value("blobUploadUrl").toString();
+    config.endpoint = obj.value("customVisionEndpoint").toString();
+    config.apiKey   = obj.value("customVisionApiKey").toString();
+    config.url      = obj.value("logicAppUrl").toString();
 
     if (config.endpoint.isEmpty() || config.apiKey.isEmpty() || config.url.isEmpty()) {
         std::cerr << "Error: Missing one or more required fields in config.\n";
@@ -103,7 +102,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     predictionNM = new QNetworkAccessManager(this);
     logicAppNM = new QNetworkAccessManager(this);
-    blobNM = new QNetworkAccessManager(this);
     connect(predictionNM, &QNetworkAccessManager::finished, this, &MainWindow::onPredictionResult);
 
     ConfigData config = loadConfig("config.json");
@@ -115,7 +113,6 @@ MainWindow::MainWindow(QWidget *parent)
     predictionKey = config.apiKey;
     predictionUrl = config.endpoint;
     logicAppUrl   = config.url;
-    blobUploadUrl = config.blobUploadUrl;
 
 }
 
@@ -154,10 +151,8 @@ QString MainWindow::takePhoto(const cv::Mat& frame) {
         qDebug() << "Failed to create photo directory.";
         return "";
     }
-    QString filename = QString("photos/motion_photo_%1.jpg").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss"));
 
-
-    /*QString filename = QString("photos/motion_photo_%1.jpg").arg(QDateTime::currentSecsSinceEpoch());*/
+    QString filename = QString("photos/motion_photo_%1.jpg").arg(QDateTime::currentSecsSinceEpoch());
     if (!cv::imwrite(filename.toStdString(), frame)) {
         qDebug() << "Failed to save photo.";
         return "";
@@ -178,33 +173,21 @@ void MainWindow::sendPhotoForPrediction(const QString& path) {
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/octet-stream");
 
     apiRequestInProgress = true;
-
-    QByteArray photoData = file->readAll();  // ? Read it once
-    QNetworkReply* reply = predictionNM->post(request, photoData);
-    reply->setProperty("photoPath", path);
-
-
-   /* predictionNM->post(request, file->readAll());
-
-    QNetworkReply* reply = predictionNM->post(request, file->readAll());
-    reply->setProperty("photoPath", path);*/
-    //qDebug() << "path at the end of sendforprediction():" <<path;  FiNE
+    predictionNM->post(request, file->readAll());
     file->deleteLater();
 }
 
 void MainWindow::onPredictionResult(QNetworkReply* reply) {
     apiRequestInProgress = false;
 
-    QString photoPath = reply->property("photoPath").toString();  // moved up
-    QByteArray response = reply->readAll();
-
-    if (reply->error() != QNetworkReply::NoError && response.isEmpty()) {
+    if (reply->error() != QNetworkReply::NoError) {
         qDebug() << "Prediction API error:" << reply->errorString();
         predictionResultLabel->setText("Prediction: Error");
         reply->deleteLater();
         return;
     }
 
+    QByteArray response = reply->readAll();
     qDebug() << "Prediction response:" << response;
 
     QJsonDocument doc = QJsonDocument::fromJson(response);
@@ -238,8 +221,11 @@ void MainWindow::onPredictionResult(QNetworkReply* reply) {
     predictionResultLabel->setText(resultText);
 
     if (tag.toLower() == "intruder") {
-        QString uploadUrl = uploadPhotoToBlob(photoPath);
-        sendToLogicApp(tag, probability, uploadUrl);
+        QString filePath = "./photos/*.jpg";  // your actual photo path
+        QString fileName = "intruder_" + QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss") + ".jpg";
+        uploadImageToBlob(filePath, fileName);
+
+        sendToLogicApp(tag, probability);
     }
 
     predictionResultLabel->adjustSize();
@@ -247,89 +233,13 @@ void MainWindow::onPredictionResult(QNetworkReply* reply) {
     reply->deleteLater();
 }
 
-QString MainWindow::uploadPhotoToBlob(const QString& photoPath) {
-    QFile file(photoPath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Failed to open photo for upload:" << photoPath;
-        return "fail";
-    }
-
-    QString filename = QFileInfo(photoPath).fileName();
-    qDebug() << "photoPath in uploadToBlob():" << photoPath;
-    qDebug() << "Extracted filename:" << filename;
-
-    // Split the URL into base and query string
-    QStringList parts = blobUploadUrl.split("?");
-    if (parts.size() != 2) {
-        qDebug() << "Invalid blobUploadUrl format in config.json";
-        return "fail";
-    }
-
-    QString baseUrl = parts[0];  // e.g., https://<account>.blob.core.windows.net/<container>
-    QString sasToken = parts[1]; // everything after '?'
-
-    // Construct the correct full upload URL
-    QString uploadUrl = QString("%1/%2?%3").arg(baseUrl, filename, sasToken);
-
-    QNetworkRequest request{QUrl(uploadUrl)};
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "image/jpeg");
-    request.setRawHeader("x-ms-blob-type", "BlockBlob");
-
-    QByteArray photoData = file.readAll();
-    file.close();
-
-    QNetworkReply* reply = blobNM->put(request, photoData);
-    connect(reply, &QNetworkReply::finished, [reply, filename]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Photo uploaded to Blob Storage:" << filename;
-        } else {
-            qDebug() << "Blob upload failed:" << reply->errorString();
-        }
-        reply->deleteLater();
-    });
-return uploadUrl;
-}
-
-/*
-void MainWindow::uploadPhotoToBlob(const QString& photoPath) {
-    QFile file(photoPath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        qDebug() << "Failed to open photo for upload:" << photoPath;
-        return;
-    }
-
-
-    qDebug() << "photoPath in oploadtoblob():" << photoPath;
-    qDebug() << "Extracted filename:" << QFileInfo(photoPath).fileName();
-
-    QString filename = QFileInfo(photoPath).fileName();
-    QString uploadUrl = blobUploadUrl + "/" + filename;
-
-    QNetworkRequest request{QUrl(uploadUrl)};
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "image/jpeg");  // Assuming jpg
-    request.setRawHeader("x-ms-blob-type", "BlockBlob");
-
-    QByteArray photoData = file.readAll();
-    file.close();
-
-    QNetworkReply* reply = blobNM->put(request, photoData);
-    connect(reply, &QNetworkReply::finished, [reply, filename]() {
-        if (reply->error() == QNetworkReply::NoError) {
-            qDebug() << "Photo uploaded to Blob Storage:" << filename;
-        } else {
-            qDebug() << "Blob upload failed:" << reply->errorString();
-        }
-        reply->deleteLater();
-    });
-}
-*/
-
-void MainWindow::sendToLogicApp(const QString& tag, double probability, const QString& uploadUrl) {
+void MainWindow::sendToLogicApp(const QString& tag, double probability, const QString &imageUrl) {
     QJsonObject payload;
     payload["tag"] = tag;
     payload["probability"] = QString::number(probability, 'f', 2);
     payload["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
-    payload["photo url"] = uploadUrl;
+    payload["imageurl"] = imageUrl;
+
     QJsonDocument doc(payload);
     QByteArray jsonData = doc.toJson();
 
@@ -339,6 +249,44 @@ void MainWindow::sendToLogicApp(const QString& tag, double probability, const QS
     logicAppNM->post(request, jsonData);
 
     qDebug() << "Sent data to Logic App: " << jsonData;
+}
+
+void MainWindow::uploadImageToBlob(const QString &filePath, const QString &fileName)
+{
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Failed to open file for upload:" << filePath;
+        return;
+    }
+
+    QByteArray fileData = file.readAll();
+    file.close();
+
+    QString storageAccount = "YOUR_STORAGE_ACCOUNT"; // e.g., myblobaccount
+    QString container = "YOUR_CONTAINER_NAME";       // e.g., images
+    QString sasToken = "YOUR_SAS_TOKEN";             // starts with ?sv=...
+
+    QString blobUrl = QString("https://%1.blob.core.windows.net/%2/%3%4")
+                        .arg(storageAccount, container, fileName, sasToken);
+
+    QUrl url(blobUrl);
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "image/jpeg");
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->put(request, fileData);
+
+    connect(reply, &QNetworkReply::finished, [=]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            qDebug() << "? Image uploaded successfully!";
+            QString publicUrl = QString("https://%1.blob.core.windows.net/%2/%3")
+                                  .arg(storageAccount, container, fileName);
+            sendToLogicApp(predictedTag, probability, publicUrl);  // ? Update this to include the image URL
+        } else {
+            qDebug() << "? Upload failed:" << reply->errorString();
+        }
+        reply->deleteLater();
+    });
 }
 
 
