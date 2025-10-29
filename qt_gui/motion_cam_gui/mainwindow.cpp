@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     if (gpioInitialise() < 0) {
-        qDebug() << "Failed to initialize pigpio!";
+        qDebug() << "Failed to initialize pigpio.";
         return;
     }
 
@@ -39,9 +39,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Caption for latest photo
     photoCaptionLabel = new QLabel("Last photo taken:", this);
-    photoCaptionLabel->setFixedWidth(150);  // Hardcoded width
+    photoCaptionLabel->setFixedWidth(150);
     photoCaptionLabel->setAlignment(Qt::AlignCenter);
-    photoCaptionLabel->move(390, 20);       // Adjust as needed to look centered
+    photoCaptionLabel->move(390, 20);
     photoCaptionLabel->setStyleSheet("font-weight: bold; font-size: 14px");
 
     // Latest photo label
@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Tmestamp label for latest photo
     timestampLabel = new QLabel(this);
-    timestampLabel->move(400, 330);  // Position it below latestPhotoLabel
+    timestampLabel->move(400, 330);
     timestampLabel->setText("Last photo time:");
     timestampLabel->adjustSize();
 
@@ -76,9 +76,9 @@ void MainWindow::updateFrame()
         if (frame.empty()) return;
 
         takePhoto(frame);
-        updateLatestPhoto();  // refresh photo label
+        updateLatestPhoto();
 
-        std::time_t photoTime = getLastPhotoTime();  //get photo timestamp
+        std::time_t photoTime = getLastPhotoTime();
         QString timestamp = QDateTime::fromSecsSinceEpoch(photoTime).toString("yyyy-MM-dd hh:mm:ss");
         timestampLabel->setText("Last photo time: " + timestamp);
         timestampLabel->adjustSize();
@@ -92,33 +92,16 @@ void MainWindow::updateFrame()
 }
 
 void MainWindow::updateLatestPhoto() {
-    QDir dir("photos");  // Look in the 'photos' folder
+    QDir dir("photos");
     QStringList filters;
     filters << "motion_photo_*.jpg";
     dir.setNameFilters(filters);
     dir.setSorting(QDir::Time | QDir::Reversed);  // newest first
     QStringList photos = dir.entryList();
+    QPixmap pix("photos/" + photos.last());
+    latestPhotoLabel->setPixmap(pix.scaled(latestPhotoLabel->size(), Qt::KeepAspectRatio));
 
-    if (!photos.isEmpty()) {
-        QPixmap pix("photos/" + photos.last());  // Use the correct path
-        latestPhotoLabel->setPixmap(pix.scaled(latestPhotoLabel->size(), Qt::KeepAspectRatio));
     }
-}
 
 
-/*
-void MainWindow::updateLatestPhoto()
-{
-    QDir dir(".");
-    QStringList filters;
-    filters << "motion_photo_*.jpg";
-    dir.setNameFilters(filters);
-    dir.setSorting(QDir::Time | QDir::Reversed);  // newest last
-    QStringList photos = dir.entryList();
 
-    if (!photos.isEmpty()) {
-        QPixmap pix(photos.last());
-        latestPhotoLabel->setPixmap(pix.scaled(latestPhotoLabel->size(), Qt::KeepAspectRatio));
-    }
-}
-*/
