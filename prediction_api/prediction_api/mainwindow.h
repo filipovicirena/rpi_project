@@ -11,7 +11,6 @@
 #include <opencv2/opencv.hpp>
 #include <pigpio.h>
 
-// Define this above the class
 struct ConfigData {
     QString endpoint;
     QString apiKey;
@@ -58,7 +57,7 @@ private:
 
     ConfigData config;
 
-    QString takePhoto(const cv::Mat& frame);
+
     void sendPhotoForPrediction(const QString& path);
     void sendToLogicApp(const QString& tag, double probability,const QString& uploadUrl);
     void updateLatestPhoto(const QString& photoPath);
